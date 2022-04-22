@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agnos", "Agnos\Agnos.csproj", "{60CF6D0C-189A-4C8C-A310-1A42EDC42345}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject1", "UnitTestProject1\UnitTestProject1.csproj", "{B9B66425-B6D4-4C13-9CB2-5B52DA2D2F8F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{60CF6D0C-189A-4C8C-A310-1A42EDC42345}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60CF6D0C-189A-4C8C-A310-1A42EDC42345}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60CF6D0C-189A-4C8C-A310-1A42EDC42345}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9B66425-B6D4-4C13-9CB2-5B52DA2D2F8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9B66425-B6D4-4C13-9CB2-5B52DA2D2F8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9B66425-B6D4-4C13-9CB2-5B52DA2D2F8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9B66425-B6D4-4C13-9CB2-5B52DA2D2F8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
