@@ -12,14 +12,14 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Newtonsoft.Json;
 
-namespace Agnos.Controllers
+namespace Agnos
 {
     //Depending on the team development standards, I might have done dependency injection to decouple logic
     public class ProductsController : ApiController
     {
         public MongoClient client; 
         public IMongoDatabase db;
-        public IMongoCollection<Models.Product> menu;
+        public IMongoCollection<Product> menu;
         public async Task<IHttpActionResult> Get()
         {
             try
@@ -27,7 +27,7 @@ namespace Agnos.Controllers
                 client = new MongoClient("mongodb://127.0.0.1:27017");
                 db = client.GetDatabase("CoffeeShop");
 
-                menu = db.GetCollection<Models.Product>("Product");
+                menu = db.GetCollection<Product>("Product");
 
                 var res = await menu.Find(_ => true).ToListAsync();
                 return Ok(res);
@@ -45,13 +45,13 @@ namespace Agnos.Controllers
         }
 
         [Route("api/AddProduct")]
-        public async Task<IHttpActionResult> Post([FromBody] Models.Product insertVal)
+        public async Task<IHttpActionResult> Post([FromBody] Product insertVal)
         {
             try
             {
                 client = new MongoClient("mongodb://127.0.0.1:27017");
                 db = client.GetDatabase("CoffeeShop");
-                menu = db.GetCollection<Models.Product>("Product");
+                menu = db.GetCollection<Product>("Product");
                 await menu.InsertOneAsync(insertVal);
                 return Ok();
             }
@@ -72,31 +72,31 @@ namespace Agnos.Controllers
     {
         public MongoClient client;
         public IMongoDatabase db;
-        public IMongoCollection<Models.Product> product;
-        public IMongoCollection<Models.CartItem> cart;
-        public IMongoCollection<Models.PriceAdjustment> adjust;
-        public IMongoCollection<Models.Order> order;
-        public async Task<IHttpActionResult> Post([FromBody] Models.CartItem item)
+        public IMongoCollection<Product> product;
+        public IMongoCollection<CartItem> cart;
+        public IMongoCollection<PriceAdjustment> adjust;
+        public IMongoCollection<Order> order;
+        public async Task<IHttpActionResult> Post([FromBody] CartItem item)
         {
             try
             {
                 client = new MongoClient("mongodb://127.0.0.1:27017");
                 db = client.GetDatabase("CoffeeShop");
-                adjust = db.GetCollection<Models.PriceAdjustment>("PriceAdjustment");
-                var priceAdjustment = Builders<Models.PriceAdjustment>.Filter.Eq("name", item.name);
-                Models.PriceAdjustment update = await adjust.Find(priceAdjustment).SingleAsync();
+                adjust = db.GetCollection<PriceAdjustment>("PriceAdjustment");
+                var priceAdjustment = Builders<PriceAdjustment>.Filter.Eq("name", item.name);
+                PriceAdjustment update = await adjust.Find(priceAdjustment).SingleAsync();
 
-                product = db.GetCollection<Models.Product>("Product");
-                var getProduct = Builders<Models.Product>.Filter.Eq("name", item.name);
+                product = db.GetCollection<Product>("Product");
+                var getProduct = Builders<Product>.Filter.Eq("name", item.name);
                 var prod = await product.Find(getProduct).SingleAsync();
 
                 item.price = prod.price;
                 double taxed = update.taxRate * item.price;
 
                 //if the order has another item, the new added item might be discounted
-                order = db.GetCollection<Models.Order>("Order");
-                var findOrder = Builders<Models.Order>.Filter.Eq("orderId", item.orderId);
-                Models.Order ord = await order.Find(findOrder).FirstOrDefaultAsync();
+                order = db.GetCollection<Order>("Order");
+                var findOrder = Builders<Order>.Filter.Eq("orderId", item.orderId);
+                Order ord = await order.Find(findOrder).FirstOrDefaultAsync();
                 if (ord != null)
                 {
                     item.price = (1 - update.discount) * item.price + taxed;
@@ -111,18 +111,18 @@ namespace Agnos.Controllers
                 }
 
                 //might have adjusted pricing for quantity here too
-                cart = db.GetCollection<Models.CartItem>("CartItem");
+                cart = db.GetCollection<CartItem>("CartItem");
                 await cart.InsertOneAsync(item);
 
                 if (ord != null)
                 {
                     var newList = ord.items;
                     newList.Add(item.id.ToString());
-                    await order.UpdateManyAsync(findOrder, Builders<Models.Order>.Update.Set("total", ord.total += item.price).Set("items", newList));
+                    await order.UpdateManyAsync(findOrder, Builders<Order>.Update.Set("total", ord.total += item.price).Set("items", newList));
                 }
                 else
                 {
-                    Models.Order tempOrder = new Models.Order
+                    Order tempOrder = new Order
                     {
                         id = ObjectId.Parse(item.orderId),
                         total = item.price,
@@ -152,8 +152,8 @@ namespace Agnos.Controllers
     {
         public MongoClient client;
         public IMongoDatabase db;
-        public IMongoCollection<Models.Order> order;
-        public IMongoCollection<Models.CartItem> cart;
+        public IMongoCollection<Order> order;
+        public IMongoCollection<CartItem> cart;
 
         public async Task<IHttpActionResult> Get(string orderId)
         {
@@ -162,12 +162,12 @@ namespace Agnos.Controllers
                 client = new MongoClient("mongodb://localhost:27017");
                 db = client.GetDatabase("CoffeeShop");
 
-                var cartQuery = Builders<Models.CartItem>.Filter.Eq("orderId", orderId);
-                cart = db.GetCollection<Models.CartItem>("CartItem");
+                var cartQuery = Builders<CartItem>.Filter.Eq("orderId", orderId);
+                cart = db.GetCollection<CartItem>("CartItem");
                 var eachItem = await cart.Find(cartQuery).ToListAsync();
 
-                var OrderQuery = Builders<Models.Order>.Filter.Eq("id", ObjectId.Parse(orderId));
-                order = db.GetCollection<Models.Order>("Order");
+                var OrderQuery = Builders<Order>.Filter.Eq("id", ObjectId.Parse(orderId));
+                order = db.GetCollection<Order>("Order");
                 var ord = await order.Find(OrderQuery).FirstAsync();
                 var res = new { eachItem, total = ord.total };
                 return Ok(res);
@@ -191,10 +191,10 @@ namespace Agnos.Controllers
             {
                 client = new MongoClient("mongodb://localhost:27017");
                 db = client.GetDatabase("CoffeeShop");
-                order = db.GetCollection<Models.Order>("Order");
-                var filter = Builders<Models.Order>.Filter.Eq("id", ObjectId.Parse(submission));
+                order = db.GetCollection<Order>("Order");
+                var filter = Builders<Order>.Filter.Eq("id", ObjectId.Parse(submission));
 
-                var update = Builders<Models.Order>.Update.Set("paid", true).Set("ready", true);
+                var update = Builders<Order>.Update.Set("paid", true).Set("ready", true);
                 await order.UpdateManyAsync(filter, update);
                 //After submitting order, notifies that order is ready after 4 seconds
                 Thread.Sleep(4000);

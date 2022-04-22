@@ -4,76 +4,76 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 
-namespace Agnos.Models
+namespace Agnos
 {
     public class Product
     {
         [BsonId]
-        public ObjectId id;
+        public ObjectId id { get; set; }
 
         [BsonElement]
-        public string name;
+        public string name { get; set; }
 
         [BsonElement]
-        public double price; 
+        public double price { get; set; }
     }
 
     //could just have this be embedded inside the Product collection but don't want to have to pull this data every time we get the menu
     public class PriceAdjustment
     {
         [BsonId]
-        public ObjectId id;
+        public ObjectId id { get; set; }
 
         [BsonElement]
-        public string name;
+        public string name { get; set; }
 
         [BsonElement]
-        public double discount;
+        public double discount { get; set; }
 
         [BsonElement]
-        public double taxRate;
+        public double taxRate { get; set; }
     }
 
     public class CartItem
     {
         [BsonId]
-        public ObjectId id;
+        public ObjectId id { get; set; }
 
         [BsonElement]
-        public string name;
+        public string name { get; set; }
 
         [BsonElement]
-        public string orderId;
+        public string orderId { get; set; }
 
         [BsonElement]
-        public int quantity;
+        public int quantity { get; set; }
 
         [BsonElement]
-        public double price;
+        public double price { get; set; }
 
         [BsonElement]
-        public string customerName;
+        public string customerName { get; set; }
     }
 
     public class Order
     {
         [BsonId]
-        public ObjectId id;
+        public ObjectId id { get; set; }
 
         [BsonElement]
-        public double total;
+        public double total { get; set; }
 
         [BsonElement]
-        public bool paid;
+        public bool paid { get; set; }
 
         [BsonElement]
-        public bool ready;
+        public bool ready { get; set; }
 
         [BsonElement]
-        public string customerName;
+        public string customerName { get; set; }
 
         [BsonElement]
-        public List<string> items;
+        public List<string> items { get; set; }
 
     }
 
