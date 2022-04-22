@@ -84,8 +84,16 @@ namespace Agnos
                 db = client.GetDatabase("CoffeeShop");
                 adjust = db.GetCollection<PriceAdjustment>("PriceAdjustment");
                 var priceAdjustment = Builders<PriceAdjustment>.Filter.Eq("name", item.name);
-                PriceAdjustment update = await adjust.Find(priceAdjustment).SingleAsync();
-
+                PriceAdjustment update = await adjust.Find(priceAdjustment).SingleOrDefaultAsync();
+                if (update == null)
+                {
+                    update = new PriceAdjustment
+                    {
+                        discount = 0,
+                        taxRate = .03,
+                        name = item.name
+                    };
+                }
                 product = db.GetCollection<Product>("Product");
                 var getProduct = Builders<Product>.Filter.Eq("name", item.name);
                 var prod = await product.Find(getProduct).SingleAsync();
@@ -95,9 +103,9 @@ namespace Agnos
 
                 //if the order has another item, the new added item might be discounted
                 order = db.GetCollection<Order>("Order");
-                var findOrder = Builders<Order>.Filter.Eq("orderId", item.orderId);
-                Order ord = await order.Find(findOrder).FirstOrDefaultAsync();
-                if (ord != null)
+                var findOrder = Builders<Order>.Filter.Eq("id", ObjectId.Parse(item.orderId));
+                Order ord = !string.IsNullOrEmpty(item.orderId) ? await order.Find(findOrder).SingleOrDefaultAsync() : null;
+                if (ord != null || item.quantity > 1)
                 {
                     item.price = (1 - update.discount) * item.price + taxed;
                     //if discounting and consideration for quantity was better defined I would add more logic here to include quantity
@@ -105,6 +113,7 @@ namespace Agnos
                 else
                 {
                     item.price += taxed;
+                    item.orderId = ObjectId.GenerateNewId().ToString();
                     //preferably I would have the front end generate the objectId based on user session
                     //but I could also make generate object Id here and use it for both the cart and order document
 
@@ -124,7 +133,7 @@ namespace Agnos
                 {
                     Order tempOrder = new Order
                     {
-                        id = ObjectId.Parse(item.orderId),
+                        id = item.orderId,
                         total = item.price,
                         paid = false,
                         ready = false,

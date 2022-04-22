@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-
+using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace Agnos
 {
     public class Product
     {
-        [BsonId]
-        public ObjectId id { get; set; }
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
 
         [BsonElement]
         public string name { get; set; }
@@ -21,8 +22,9 @@ namespace Agnos
     //could just have this be embedded inside the Product collection but don't want to have to pull this data every time we get the menu
     public class PriceAdjustment
     {
-        [BsonId]
-        public ObjectId id { get; set; }
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
 
         [BsonElement]
         public string name { get; set; }
@@ -36,8 +38,9 @@ namespace Agnos
 
     public class CartItem
     {
-        [BsonId]
-        public ObjectId id { get; set; }
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
 
         [BsonElement]
         public string name { get; set; }
@@ -57,8 +60,9 @@ namespace Agnos
 
     public class Order
     {
-        [BsonId]
-        public ObjectId id { get; set; }
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
 
         [BsonElement]
         public double total { get; set; }
